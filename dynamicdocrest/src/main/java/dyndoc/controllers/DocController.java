@@ -33,6 +33,15 @@ public abstract class DocController {
      */
     private String path;
 
+
+    /**
+     * Initialize the controller. Build all the maps and initialize the controllers within.
+     * @throws Exception - In case something goes bump when initializing..
+     */
+    public static void Init() throws Exception {
+        buildMap();
+    }
+
     /**
      * The static function that, for the request coming in, builds the map if needed
      * and fetches the right Controller for the path passed, based on the Controller's subscription.
@@ -42,7 +51,6 @@ public abstract class DocController {
      * @throws Exception - In case no proper Controller was mapped.
      */
     public static DocController getController(Request request) throws Exception  {
-        buildMap();
         LOG.info("Looking for a mapping to '" + request.pathInfo() + "' in " + controllableMap);
 
         return controllableMap.get(request.pathInfo());
@@ -69,6 +77,9 @@ public abstract class DocController {
         // For every subclass found, register it to it's path and add a mapping for it.
         for(Class<? extends DocController> con : controllers) {
             DocController c = con.newInstance();
+
+            // Initialize the new controller.
+            c.Initialize();
 
             LOG.info("Adding mapping for '" + c.getPath() + "' to " + con.getName());
             controllableMap.put(Constants.VERSION + c.getPath(), c);
@@ -99,4 +110,13 @@ public abstract class DocController {
      * @throws Exception - In case of any errors, throw an Exception.
      */
     public abstract Object handle(Request request, Response response) throws Exception;
+
+
+    /**
+     * Initialize any data oriented functions before we start using this Controller.
+     * This initialization should be done in async to avoid any performance delays.
+     *
+     * @throws Exception - In case something goes wrong..
+     */
+    public abstract void Initialize() throws Exception;
 }
