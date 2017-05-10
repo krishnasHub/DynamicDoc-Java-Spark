@@ -1,10 +1,12 @@
 package dyndoc.rest;
 
-import dyndoc.controllers.DocController;
+import dyndoc.controllers.BaseController;
+import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.activation.DataContentHandler;
+
+import java.util.Set;
 
 import static spark.Spark.*;
 
@@ -26,9 +28,22 @@ public class RestLayer {
      * @param args - String arguments that we're not using as of now.
      */
     public static void main(String[] args) throws Exception {
+        // Set the reflection framework.
+        Reflections reflections = new Reflections("dyndoc.controllers");
 
-        // Initialize the controllers.
-        DocController.Init();
+        // Get a set of all subclasses of DocController
+        Set<Class<? extends BaseController>> controllers = reflections.getSubTypesOf(BaseController.class);
+
+        // For every subclass found, register it to it's path and add a mapping for it.
+        for(Class<? extends BaseController> con : controllers) {
+            BaseController c = con.newInstance();
+
+            // Initialize the new controller.
+            c.Init();
+
+            // Register all routes in it..
+            c.RegisterRoutes();
+        }
 
         // The health check request.
         get("/v1/health", (req, res) -> {
@@ -36,13 +51,6 @@ public class RestLayer {
 
             return "OK";
         });
-
-        // Login function.
-        get("/v1/login", (req, res) -> {
-            LOG.info("Login triggered..");
-            return DocController.getController(req).handle(req, res);
-        });
-
 
     }
 }

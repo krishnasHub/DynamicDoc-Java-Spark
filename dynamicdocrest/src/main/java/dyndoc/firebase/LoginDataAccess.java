@@ -5,6 +5,10 @@ import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.google.firebase.auth.FirebaseCredentials;
 import com.google.firebase.database.*;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.stream.JsonReader;
+import dyndoc.data.User;
 import org.slf4j.*;
 
 import java.io.*;
@@ -20,8 +24,7 @@ public class LoginDataAccess {
 
     private static final String DATABASE_URL = "https://testfirebase1-76feb.firebaseio.com/";
     private static DatabaseReference database;
-
-    private static final Map<String, String> map = new HashMap<>();
+    private static final List<User> users = new ArrayList<>();
 
 
     public static void Initialize() throws Exception {
@@ -45,24 +48,23 @@ public class LoginDataAccess {
         database.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String prevChildName) {
-                LOG.info("Adding [" + dataSnapshot.getKey() + ", " + dataSnapshot.getValue().toString() + "]");
+                LOG.info("Adding [" + dataSnapshot.getKey() + ", " + dataSnapshot.getValue() + "]");
 
-                map.put(dataSnapshot.getKey(),  dataSnapshot.getValue().toString());
+                User u = dataSnapshot.getValue(User.class);
+                u.setName(dataSnapshot.getKey());
+                users.add(u);
+
                 semaphore.release();
             }
 
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
                 LOG.info("Updating " + dataSnapshot.getKey() + " with " + dataSnapshot.getValue().toString());
-
-                map.put(dataSnapshot.getKey(), dataSnapshot.getValue().toString());
             }
 
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
                 LOG.info("Removing " + dataSnapshot.getKey());
-
-                map.remove(dataSnapshot.getKey());
             }
 
             @Override
@@ -82,6 +84,6 @@ public class LoginDataAccess {
 
 
     public Object getData() throws Exception {
-        return map;
+        return users;
     }
 }
