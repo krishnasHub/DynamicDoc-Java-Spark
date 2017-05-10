@@ -1,5 +1,6 @@
 package dyndoc.controllers;
 
+import dyndoc.firebase.LoginDataAccess;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Request;
@@ -16,6 +17,7 @@ public class LoginController extends DocController {
      * Logger for this class.
      */
     private static Logger LOG = LoggerFactory.getLogger(LoginController.class);
+
 
     /**
      * Basic constructor that needs to set the path variable to something in order to register it.
@@ -36,6 +38,17 @@ public class LoginController extends DocController {
     @Override
     public Object handle(Request request, Response response) throws Exception {
         LOG.info("Login controller called.");
-        return "OK";
+        LoginDataAccess loginDataAccess = new LoginDataAccess();
+        return loginDataAccess.getData();
+    }
+
+    /**
+     * Starts the Login data async..
+     * @throws Exception - In case we could not reach firebase.
+     */
+    @Override
+    public void Initialize() throws Exception {
+        LOG.info("Initializing the controller..");
+        LoginDataAccess.Initialize();
     }
 }

@@ -4,6 +4,8 @@ import dyndoc.controllers.DocController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.activation.DataContentHandler;
+
 import static spark.Spark.*;
 
 /**
@@ -23,7 +25,11 @@ public class RestLayer {
      * The entry point to our app.
      * @param args - String arguments that we're not using as of now.
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
+
+        // Initialize the controllers.
+        DocController.Init();
+
         // The health check request.
         get("/v1/health", (req, res) -> {
             LOG.info("GET request found. Returning OK.");
