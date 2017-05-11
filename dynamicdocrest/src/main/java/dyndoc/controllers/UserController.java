@@ -1,9 +1,12 @@
 package dyndoc.controllers;
 
+import dyndoc.data.User;
 import dyndoc.firebase.LoginDataAccess;
 import dyndoc.util.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static spark.Spark.*;
 
@@ -41,7 +44,13 @@ public class UserController extends BaseController {
 
             LOG.info("Login called for " + name);
             LoginDataAccess loginDataAccess = new LoginDataAccess();
-            return loginDataAccess.getData();
+            List<User> userList = ((List<User> ) loginDataAccess.getData()).stream().filter(u -> u.getName().equals(name) && u.getPassword().equals(password)).collect(Collectors.toList());
+
+            if (userList.size() != 0) {
+                // TODO: Update the status of this User to set login as true.
+            }
+
+            return userList.size() == 1;
         });
 
         // The logout part..
