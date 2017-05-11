@@ -7,6 +7,7 @@ public class User {
     private long id;
     private String name;
     private String password;
+    private boolean login;
 
 
     public long getId() {
@@ -31,5 +32,13 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public boolean isLogin() {
+        return login;
+    }
+
+    public void setLogin(boolean login) {
+        this.login = login;
     }
 }
